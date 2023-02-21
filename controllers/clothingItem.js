@@ -43,8 +43,9 @@ const updateItem = (req, res) => {
     .orFail()
     .then((item) => res.status(200).send({ item }))
     .catch((error) =>
-      res.status(500).send({ message: "Error updating item", error })
-    );
+      res.status(400).send({ message: "Error updating item", error })
+    )
+    .catch((error) => res.status(500).send({ message: "Server Error", error }));
 };
 
 const deleteItem = (req, res) => {
@@ -58,10 +59,40 @@ const deleteItem = (req, res) => {
     );
 };
 
+const likeItem = (req, res) => {
+  const { id } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    id,
+    { $addToSet: { like: req.user._id } },
+    { new: true }
+  )
+    .then((item) => res.status(200).send(item))
+    .catch((error) =>
+      res.status(500).send({ message: "Internal Server Error", error })
+    );
+};
+
+const dislikeItem = (req, res) => {
+  const { id } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    id,
+    { $pull: { like: req.user._id } },
+    { new: true }
+  )
+    .then((item) => res.status(200).send(item))
+    .catch((error) =>
+      res.status(500).send({ message: "Internal Server Error", error })
+    );
+};
+
 module.exports = {
   getItems,
   findById,
   createItem,
+  likeItem,
+  dislikeItem,
   updateItem,
   deleteItem,
 };
