@@ -18,7 +18,7 @@ const getUserById = (req, res) => {
     .orFail()
     .then((user) => res.status(200).send(user))
     .catch((error) =>
-      res.status(500).send({ message: "User does not exist", error })
+      res.status(404).send({ message: "User does not exist", error })
     );
 };
 
