@@ -14,11 +14,21 @@ const getUsers = (req, res, next) => {
 const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
-  User.findById(userId)
+  if (!userId) {
+    return res.status(404).send({
+      message: error.message,
+    });
+  }
+
+  User.findById({ userId })
     .orFail()
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      res.status(200).send({ message: error.message });
+    })
     .catch((error) => {
-      next(error);
+      if (error.name === "CastError") {
+        res.status(400).send({ message: error.message });
+      }
     });
 };
 

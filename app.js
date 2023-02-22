@@ -5,6 +5,7 @@ const app = express();
 const { PORT = 3001 } = process.env;
 const {
   handle400Errors,
+  handle401Errors,
   handle404Errors,
   handle500Errors,
 } = require("./utils/errors");
@@ -26,9 +27,10 @@ app.use((req, res, next) => {
 });
 
 // Error Handling
-app.use(handle400Errors);
-app.use(handle404Errors);
-app.use(handle500Errors);
+// app.use(handle400Errors);
+// app.use(handle401Errors);
+// app.use(handle404Errors);
+// app.use(handle500Errors);
 
 app.listen(PORT, () => {
   console.log(`
