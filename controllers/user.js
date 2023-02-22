@@ -23,7 +23,7 @@ const getUserById = (req, res, next) => {
   User.findById({ userId })
     .orFail()
     .then((user) => {
-      res.status(200).send({ message: error.message });
+      res.status(200).send(user);
     })
     .catch((error) => {
       if (error.name === "CastError") {
