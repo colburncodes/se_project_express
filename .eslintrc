@@ -1,4 +1,10 @@
 {
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
+  },
+
   "extends": ["eslint:recommended", "airbnb-base", "prettier"],
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
@@ -8,10 +14,9 @@
       "double",
       { "avoidEscape": true, "allowTemplateLiterals": true }
     ],
-    "import/newline-after-import": ["error", { "count": 0 }]
+    "import/newline-after-import": ["error", { "count": 1 }]
   },
   "parserOptions": {
     "ecmaVersion": "latest"
   }
 }
-

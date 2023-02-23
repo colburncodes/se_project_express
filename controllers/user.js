@@ -11,25 +11,24 @@ const getUsers = (req, res, next) => {
     });
 };
 
-const getUserById = (req, res, next) => {
+const getUserById = (error, req, res, next) => {
   const { userId } = req.params;
 
-  if (!userId) {
-    return res.status(404).send({
+  if (!userId || undefined) {
+    return res.status(400).send({
       message: error.message,
     });
   }
 
   User.findById({ userId })
     .orFail()
-    .then((user) => {
-      res.status(200).send(user);
-    })
-    .catch((error) => {
-      if (error.name === "CastError") {
+    .then((user) => res.status(200).send(user))
+    .catch(() => {
+      if (error.name === "CastError" || error.name === "ValidationError") {
         res.status(400).send({ message: error.message });
       }
     });
+  return res.status(200);
 };
 
 const createUser = (req, res, next) => {
