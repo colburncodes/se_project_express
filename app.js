@@ -1,16 +1,13 @@
 const express = require("express");
 
+const cors = require("cors");
+
 const mongoose = require("mongoose");
 
 const app = express();
 
 const { PORT = 3001 } = process.env;
-const {
-  handle400Errors,
-  // handle401Errors,
-  // handle404Errors,
-  handle500Errors,
-} = require("./utils/errors");
+const { ErrorHandler } = require("./utils/errors");
 
 // DB Connection
 mongoose.connect("mongodb://localhost:27017/wtwr_db");
@@ -19,7 +16,8 @@ mongoose.connect("mongodb://localhost:27017/wtwr_db");
 const routes = require("./routes/index");
 
 app.use(express.json());
-app.use(routes);
+app.use(cors());
+app.use("/", routes);
 
 app.use((req, res, next) => {
   req.user = {
@@ -29,10 +27,7 @@ app.use((req, res, next) => {
 });
 
 // Error Handling
-app.use(handle400Errors);
-// app.use(handle401Errors);
-// app.use(handle404Errors);
-app.use(handle500Errors);
+app.use(ErrorHandler);
 
 app.listen(PORT, () => {
   console.info(`
