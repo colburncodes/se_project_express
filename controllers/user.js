@@ -4,31 +4,41 @@ const getUsers = (req, res, next) => {
   User.find({})
     .orFail()
     .then((user) => {
-      res.status(200).send({ data: user });
+      res.status(200).send({ users: user });
     })
     .catch((error) => {
       next(error);
     });
 };
 
-const getUserById = (error, req, res, next) => {
+const getUser = async (req, res, next) => {
   const { userId } = req.params;
 
-  if (!userId || undefined) {
-    return res.status(400).send({
-      message: error.message,
+  const doesUserExist = await User.exists({ _id: userId });
+
+  if (!doesUserExist) {
+    res.status(404).send({
+      message: "User Not Found",
     });
   }
 
-  User.findById({ userId })
-    .orFail()
-    .then((user) => res.status(200).send(user))
-    .catch(() => {
-      if (error.name === "CastError" || error.name === "ValidationError") {
-        res.status(400).send({ message: error.message });
+  User.findById(userId)
+    .orFail(() => {
+      const error = new Error("User Not Found");
+      error.status = 404;
+    })
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(400).send({ message: "Invalid user id" });
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: "User not found" });
+      } else {
+        next(err);
       }
     });
-  return res.status(200);
 };
 
 const createUser = (req, res, next) => {
@@ -58,7 +68,7 @@ const updateUser = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUserById,
+  getUser,
   createUser,
   updateUser,
 };
