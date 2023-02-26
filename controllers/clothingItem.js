@@ -15,7 +15,12 @@ const findById = (req, res, next) => {
 
   ClothingItem.findById(id)
     .orFail()
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      if (!item) {
+        res.status(404).send({ message: "Item not found " });
+      }
+      res.status(200).send(item);
+    })
     .catch((error) => {
       next(error);
     });
@@ -26,13 +31,19 @@ const createItem = (req, res, next) => {
   console.log(userId);
 
   const { name, weather, imageUrl } = req.body;
-  ClothingItem.create({ name, weather, imageUrl, userId })
+
+  ClothingItem.create({ name, weather, imageUrl, owner: userId })
     .orFail()
     .then((item) => {
+      console.log(item);
       res.status(200).send({ data: item });
     })
-    .catch((error) => {
-      next(error);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: err.message });
+      } else {
+        next(err);
+      }
     });
 };
 
