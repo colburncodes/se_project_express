@@ -14,26 +14,19 @@ const getUsers = (req, res, next) => {
 const getUser = async (req, res, next) => {
   const { userId } = req.params;
 
-  const doesUserExist = await User.exists({ _id: userId });
-
-  if (!doesUserExist) {
-    res.status(404).send({
-      message: "User Not Found",
-    });
-  }
-
   User.findById(userId)
-    .orFail(() => {
-      const error = new Error("User Not Found");
-      error.status = 404;
-    })
+    .orFail()
     .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: "User nout found" });
+      }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(400).send({ message: "Invalid user id" });
-      } else if (err.statusCode === 404) {
+      }
+      if (err.name === "DocumentNotFoundError") {
         res.status(404).send({ message: "User not found" });
       } else {
         next(err);

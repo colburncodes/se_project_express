@@ -1,26 +1,16 @@
-const ERROR_CODES = {
-  BadRequest: 400,
-  Unauthorized: 401,
-  Forbidden: 403,
-  NotFound: 404,
-  ServerError: 500,
-};
-
 const ErrorHandler = (err, req, res, next) => {
   console.info("Middleware Error Handling");
-  console.error(err.message);
+  console.error(err.stack); // log the error stack trace to the console
 
-  const errStatus = err.statusCode || ERROR_CODES.ServerError;
-  const errMsg = err.message || "Something went wrong";
+  // Set a default error status code if none provided
+  const statusCode = res.statusCode || 500;
 
-  const status = res.status(errStatus).json({
-    success: false,
-    status: errStatus,
-    message: errMsg,
-    stack: process.env.NODE_ENV === "development" ? err.error : {},
+  // Return a JSON response with the error message and status code
+  res.status(statusCode).json({
+    message: err.message,
+    status: statusCode,
+    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
   });
-
-  return status;
 };
 
 module.exports = {
