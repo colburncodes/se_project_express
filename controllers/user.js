@@ -1,3 +1,4 @@
+const { ERROR_CODES } = require("../utils/errors");
 const User = require("../models/user");
 
 const getUsers = (req, res, next) => {
@@ -16,16 +17,16 @@ const getUser = async (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: "User nout found" });
+        res.status(ERROR_CODES.NotFound).send({ message: "User nout found" });
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(400).send({ message: "Invalid user id" });
+        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid user id" });
       }
       if (err.name === "DocumentNotFoundError") {
-        res.status(404).send({ message: "User not found" });
+        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
       } else {
         next(err);
       }
@@ -40,8 +41,8 @@ const createUser = (req, res, next) => {
       res.status(200).send({ data: user });
     })
     .catch((error) => {
-      if (error.name === "VlidationError") {
-        res.status(400).send({ message: "Invalid data" });
+      if (error.name === "ValidationError") {
+        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid data" });
       }
       next(error);
     });

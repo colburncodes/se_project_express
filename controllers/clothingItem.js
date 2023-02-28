@@ -1,3 +1,4 @@
+const { ERROR_CODES } = require("../utils/errors");
 const ClothingItem = require("../models/clothingItem");
 
 const getItems = (req, res, next) => {
@@ -10,18 +11,16 @@ const getItems = (req, res, next) => {
 
 const createItem = (req, res, next) => {
   const userId = req.user._id;
-  console.log(userId);
 
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner: userId })
     .then((item) => {
-      console.log(item);
       res.status(200).send({ data: item });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
+        res.status(ERROR_CODES.BadRequest).send({ message: err.message });
       } else {
         next(err);
       }
@@ -32,10 +31,17 @@ const deleteItem = (req, res, next) => {
   const { id } = req.params;
 
   ClothingItem.findByIdAndDelete(id)
-    .orFail()
     .then((item) => res.status(204).send(item))
-    .catch((error) => {
-      next(error);
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Id" });
+      } else if (err.message === "DocumentNotFoundError") {
+        res.status(ERROR_CODES.NotFound).send({ message: "Item not found" });
+      } else {
+        res
+          .status(ERROR_CODES.ServerError)
+          .send({ message: "An error has occurred on the server" });
+      }
     });
 };
 
@@ -47,9 +53,20 @@ const likeItem = (req, res, next) => {
     { $addToSet: { like: req.user._id } },
     { new: true }
   )
-    .then((item) => res.status(200).send(item))
+    .then((card) => {
+      if (!card) {
+        res.status(ERROR_CODES.NotFound).send({ message: "Card not found" });
+      }
+      res.status(200).send(card);
+    })
     .catch((error) => {
-      next(error);
+      if (error.name === "CastError") {
+        res.status(ERROR_CODES.BadRequest).send({ message: "No card with Id" });
+      } else {
+        res
+          .status(ERROR_CODES.ServerError)
+          .send({ message: "An error has occurred on the server" });
+      }
     });
 };
 
@@ -63,7 +80,13 @@ const dislikeItem = (req, res, next) => {
   )
     .then((item) => res.status(200).send(item))
     .catch((error) => {
-      next(error);
+      if (error.name === "CastError") {
+        res.status(ERROR_CODES.BadRequest).send({ message: "No card with Id" });
+      } else {
+        res
+          .status(ERROR_CODES.ServerError)
+          .send({ message: "An error has occurred on the server" });
+      }
     });
 };
 

@@ -1,3 +1,11 @@
+const ERROR_CODES = {
+  BadRequest: 400,
+  Unauthorized: 401,
+  Forbidden: 403,
+  NotFound: 404,
+  ServerError: 500,
+};
+
 const ErrorHandler = (err, req, res, next) => {
   console.info("Middleware Error Handling");
   console.error(err.stack); // log the error stack trace to the console
@@ -12,5 +20,6 @@ const ErrorHandler = (err, req, res, next) => {
 };
 
 module.exports = {
+  ERROR_CODES,
   ErrorHandler,
 };
