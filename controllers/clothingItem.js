@@ -1,26 +1,8 @@
-/* eslint-disable no-console */
 const ClothingItem = require("../models/clothingItem");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
-    .orFail()
     .then((items) => res.status(200).send({ data: items }))
-    .catch((error) => {
-      next(error);
-    });
-};
-
-const findById = (req, res, next) => {
-  const { id } = req.params;
-
-  ClothingItem.findById(id)
-    .orFail()
-    .then((item) => {
-      if (!item) {
-        res.status(404).send({ message: "Item not found " });
-      }
-      res.status(200).send(item);
-    })
     .catch((error) => {
       next(error);
     });
@@ -33,7 +15,6 @@ const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   ClothingItem.create({ name, weather, imageUrl, owner: userId })
-    .orFail()
     .then((item) => {
       console.log(item);
       res.status(200).send({ data: item });
@@ -44,18 +25,6 @@ const createItem = (req, res, next) => {
       } else {
         next(err);
       }
-    });
-};
-
-const updateItem = (req, res, next) => {
-  const { id } = req.params;
-  const { name, weather, imageUrl } = req.body;
-
-  ClothingItem.findByIdAndUpdate(id, { $set: { name, weather, imageUrl } })
-    .orFail()
-    .then((item) => res.status(200).send({ item }))
-    .catch((error) => {
-      next(error);
     });
 };
 
@@ -100,10 +69,8 @@ const dislikeItem = (req, res, next) => {
 
 module.exports = {
   getItems,
-  findById,
   createItem,
   likeItem,
   dislikeItem,
-  updateItem,
   deleteItem,
 };

@@ -17,7 +17,6 @@ const routes = require("./routes/index");
 
 app.use(express.json());
 app.use(cors());
-app.use("/", routes);
 
 app.use((req, res, next) => {
   req.user = {
@@ -25,6 +24,10 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+app.use("/", routes);
+
+
 
 // Error Handling
 app.use(ErrorHandler);
