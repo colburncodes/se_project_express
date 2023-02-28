@@ -7,9 +7,7 @@ const ErrorHandler = (err, req, res, next) => {
 
   // Return a JSON response with the error message and status code
   res.status(statusCode).json({
-    message: err.message,
-    status: statusCode,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
+    message: "An error has occured on the server",
   });
 };
 
