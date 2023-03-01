@@ -18,15 +18,13 @@ const getUser = async (req, res, next) => {
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODES.NotFound).send({ message: "User nout found" });
+      } else {
+        res.send(user);
       }
-      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid user id" });
-      }
-      if (err.name === "DocumentNotFoundError") {
-        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
       } else {
         next(err);
       }

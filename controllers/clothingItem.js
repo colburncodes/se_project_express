@@ -31,11 +31,12 @@ const deleteItem = (req, res, next) => {
   const { id } = req.params;
 
   ClothingItem.findByIdAndDelete(id)
-    .then((item) => res.status(204).send(item))
+    .orFail()
+    .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Id" });
-      } else if (err.message === "DocumentNotFoundError") {
+      } else if (err.name === "DocumentNotFoundError") {
         res.status(ERROR_CODES.NotFound).send({ message: "Item not found" });
       } else {
         res
@@ -50,14 +51,15 @@ const likeItem = (req, res, next) => {
 
   ClothingItem.findByIdAndUpdate(
     id,
-    { $addToSet: { like: req.user._id } },
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .then((card) => {
       if (!card) {
         res.status(ERROR_CODES.NotFound).send({ message: "Card not found" });
+      } else {
+        res.send(card);
       }
-      res.status(200).send(card);
     })
     .catch((error) => {
       if (error.name === "CastError") {
@@ -75,10 +77,16 @@ const dislikeItem = (req, res, next) => {
 
   ClothingItem.findByIdAndUpdate(
     id,
-    { $pull: { like: req.user._id } },
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((item) => res.status(200).send(item))
+    .then((card) => {
+      if (!card) {
+        res.status(ERROR_CODES.NotFound).send({ message: "Card not found" });
+      } else {
+        res.send(card);
+      }
+    })
     .catch((error) => {
       if (error.name === "CastError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "No card with Id" });
