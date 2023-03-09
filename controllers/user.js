@@ -1,5 +1,21 @@
+const bcrypt = require("bcryptjs");
 const { ERROR_CODES } = require("../utils/errors");
 const User = require("../models/user");
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      if (user) {
+        // sign token
+        res.send(user);
+      }
+    })
+    .catch((err) => {
+      res.status(ERROR_CODES.Unauthorized).send({ message: err.message });
+    });
+};
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -31,22 +47,30 @@ const getUser = async (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+const createUser = async (req, res, next) => {
+  const { name, email, password, avatar } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(200).send({ data: user });
-    })
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({ name, email, password: hash, avatar }).then((user) => {
+        res.status(200).send({ data: user });
+      })
+    )
     .catch((error) => {
       if (error.name === "ValidationError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid data" });
+      } else if (error.code === ERROR_CODES.DuplicateError) {
+        res
+          .status(ERROR_CODES.DuplicateError)
+          .send({ message: "User already exists! " });
       }
       next(error);
     });
 };
 
 module.exports = {
+  login,
   getUsers,
   getUser,
   createUser,
