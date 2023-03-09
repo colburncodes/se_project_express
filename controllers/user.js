@@ -31,16 +31,20 @@ const getUser = async (req, res, next) => {
     });
 };
 
-const createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+const createUser = async (req, res, next) => {
+  const { name, email, password, avatar } = req.body;
 
-  User.create({ name, about, avatar })
+  User.create({ name, email, password, avatar })
     .then((user) => {
       res.status(200).send({ data: user });
     })
     .catch((error) => {
       if (error.name === "ValidationError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid data" });
+      } else if (error.code === ERROR_CODES.DuplicateError) {
+        res
+          .status(ERROR_CODES.DuplicateError)
+          .send({ message: "User already exists! " });
       }
       next(error);
     });

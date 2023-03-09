@@ -3,7 +3,9 @@ const ERROR_CODES = {
   Unauthorized: 401,
   Forbidden: 403,
   NotFound: 404,
+  NotAcceptable: 406,
   ServerError: 500,
+  DuplicateError: 11000,
 };
 
 const ErrorHandler = (err, req, res, next) => {
