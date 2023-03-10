@@ -4,7 +4,6 @@ const clothingController = require("./clothingItem");
 const userController = require("./user");
 
 router.use("/items", clothingController);
-
 router.use("/users", userController);
 
 router.use((req, res) => {
