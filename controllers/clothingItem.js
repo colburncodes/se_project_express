@@ -3,7 +3,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send({ data: items }))
+    .then((items) => res.status(ERROR_CODES.Ok).send({ data: items }))
     .catch((error) => {
       next(error);
     });
@@ -16,11 +16,11 @@ const createItem = (req, res, next) => {
 
   ClothingItem.create({ name, weather, imageUrl, owner: userId })
     .then((item) => {
-      res.status(200).send({ data: item });
+      res.status(ERROR_CODES.Ok).send({ data: item });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(ERROR_CODES.BadRequest).send({ message: err.message });
+        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Data" });
       } else {
         next(err);
       }
@@ -30,10 +30,9 @@ const createItem = (req, res, next) => {
 const deleteItem = (req, res, next) => {
   const { id } = req.params;
 
-  ClothingItem.findByIdAndDelete(id)
-    .orFail()
+  ClothingItem.findById(id)
     .then((item) => {
-      if (item.owner.equals(id)) {
+      if (item.owner.equals(req.user._id)) {
         return item.deleteOne(() => res.send({ clothingItem: item }));
       }
       return res.status(ERROR_CODES.Forbidden).send({

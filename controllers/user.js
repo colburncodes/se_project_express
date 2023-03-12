@@ -13,7 +13,7 @@ const login = (req, res, next) => {
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         });
-        res.send(token);
+        res.send({ token });
       }
     })
     .catch((err) => {
@@ -23,8 +23,12 @@ const login = (req, res, next) => {
 
 const getCurrentUser = async (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
-    .then((user) => res.send(user))
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
+      }
+      res.status(ERROR_CODES.Ok).send(user);
+    })
     .catch((error) => {
       if (error.name === "CastError") {
         res
@@ -43,7 +47,12 @@ const createUser = async (req, res, next) => {
     .hash(password, 10)
     .then((hash) =>
       User.create({ name, email, password: hash, avatar }).then((user) => {
-        res.status(200).send({ data: user });
+        res.status(ERROR_CODES.Created).send({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+        });
       })
     )
     .catch((error) => {
@@ -51,7 +60,7 @@ const createUser = async (req, res, next) => {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid data" });
       } else if (error.code === ERROR_CODES.DuplicateError) {
         res
-          .status(ERROR_CODES.DuplicateError)
+          .status(ERROR_CODES.Conflict)
           .send({ message: "User already exists! " });
       }
       next(error);
@@ -59,7 +68,7 @@ const createUser = async (req, res, next) => {
 };
 
 const updateUser = (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.user._id;
   const { name, avatar, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -67,16 +76,21 @@ const updateUser = (req, res) => {
     { $set: { name, avatar, about } },
     { new: true, runValidators: true }
   )
-    .orFail()
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
       }
       res.send({ data: user });
     })
-    .catch((error) =>
-      res.status(500).send({ message: "Error updating user", error })
-    );
+    .catch((error) => {
+      if (error.name === "ValidationError") {
+        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Data" });
+      } else {
+        res
+          .status(ERROR_CODES.ServerError)
+          .send({ message: "Error updating user", error });
+      }
+    });
 };
 
 module.exports = {
