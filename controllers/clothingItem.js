@@ -32,7 +32,14 @@ const deleteItem = (req, res, next) => {
 
   ClothingItem.findByIdAndDelete(id)
     .orFail()
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      if (item.owner.equals(id)) {
+        return item.deleteOne(() => res.send({ clothingItem: item }));
+      }
+      return res.status(ERROR_CODES.Forbidden).send({
+        message: "Forbidden",
+      });
+    })
     .catch((err) => {
       if (err.name === "CastError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Id" });

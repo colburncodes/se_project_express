@@ -10,12 +10,10 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       if (user) {
-        // sign token
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         });
-
-        res.send({ token });
+        res.send(token);
       }
     })
     .catch((err) => {
@@ -23,32 +21,17 @@ const login = (req, res, next) => {
     });
 };
 
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((user) => {
-      res.send({ users: user });
-    })
+const getCurrentUser = async (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => res.send(user))
     .catch((error) => {
-      next(error);
-    });
-};
-
-const getUser = async (req, res, next) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        res.status(ERROR_CODES.NotFound).send({ message: "User nout found" });
+      if (error.name === "CastError") {
+        res
+          .status(ERROR_CODES.NotFound)
+          .send({ message: "User with Id not found!" });
       } else {
-        res.send(user);
-      }
-    })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid user id" });
-      } else {
-        next(err);
+        next(error);
       }
     });
 };
@@ -75,9 +58,30 @@ const createUser = async (req, res, next) => {
     });
 };
 
+const updateUser = (req, res) => {
+  const { userId } = req.params;
+  const { name, avatar, about } = req.body;
+
+  User.findByIdAndUpdate(
+    userId,
+    { $set: { name, avatar, about } },
+    { new: true, runValidators: true }
+  )
+    .orFail()
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
+      }
+      res.send({ data: user });
+    })
+    .catch((error) =>
+      res.status(500).send({ message: "Error updating user", error })
+    );
+};
+
 module.exports = {
   login,
-  getUsers,
-  getUser,
+  getCurrentUser,
   createUser,
+  updateUser,
 };
