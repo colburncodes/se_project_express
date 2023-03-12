@@ -19,13 +19,6 @@ const auth = require("./middlewares/auth");
 app.use(express.json());
 app.use(cors());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "63f37898e4813050d4d5d3a3",
-  };
-  next();
-});
-
 app.use("/", routes);
 
 app.use(auth);
