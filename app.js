@@ -14,16 +14,11 @@ mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
 // Routes
 const routes = require("./routes/index");
-const auth = require("./middlewares/auth");
 
 app.use(express.json());
 app.use(cors());
 
 app.use("/", routes);
-
-app.use(auth);
-
-
 
 // Error Handling
 app.use(ErrorHandler);
