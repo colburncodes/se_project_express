@@ -20,7 +20,7 @@ Creating a server for the front-end WTWR application.
 
 ## Tech Stack
 
-**Server:** Node, Express, Mongoose, JSONWebTokens
+**Server:** Node, Express, Mongoose, JWT
 
 
 ## Run Locally
