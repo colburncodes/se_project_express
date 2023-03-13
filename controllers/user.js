@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
-const { ERROR_CODES } = require("../utils/errors");
+const { STATUS_CODES } = require("../utils/errors");
 const User = require("../models/user");
 
 const login = (req, res, next) => {
@@ -17,7 +17,7 @@ const login = (req, res, next) => {
       }
     })
     .catch((err) => {
-      res.status(ERROR_CODES.Unauthorized).send({ message: err.message });
+      res.status(STATUS_CODES.Unauthorized).send({ message: err.message });
     });
 };
 
@@ -25,14 +25,14 @@ const getCurrentUser = async (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
+        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       }
-      res.status(ERROR_CODES.Ok).send(user);
+      res.status(STATUS_CODES.Ok).send(user);
     })
     .catch((error) => {
       if (error.name === "CastError") {
         res
-          .status(ERROR_CODES.NotFound)
+          .status(STATUS_CODES.NotFound)
           .send({ message: "User with Id not found!" });
       } else {
         next(error);
@@ -47,7 +47,7 @@ const createUser = async (req, res, next) => {
     .hash(password, 10)
     .then((hash) =>
       User.create({ name, email, password: hash, avatar }).then((user) => {
-        res.status(ERROR_CODES.Created).send({
+        res.status(STATUS_CODES.Created).send({
           _id: user._id,
           name: user.name,
           email: user.email,
@@ -57,10 +57,10 @@ const createUser = async (req, res, next) => {
     )
     .catch((error) => {
       if (error.name === "ValidationError") {
-        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid data" });
-      } else if (error.code === ERROR_CODES.DuplicateError) {
+        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid data" });
+      } else if (error.code === STATUS_CODES.DuplicateError) {
         res
-          .status(ERROR_CODES.Conflict)
+          .status(STATUS_CODES.Conflict)
           .send({ message: "User already exists! " });
       }
       next(error);
@@ -68,7 +68,7 @@ const createUser = async (req, res, next) => {
 };
 
 const updateUser = (req, res) => {
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   const { name, avatar, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -78,17 +78,15 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERROR_CODES.NotFound).send({ message: "User not found" });
+        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       }
       res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === "ValidationError") {
-        res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Data" });
+        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid Data" });
       } else {
-        res
-          .status(ERROR_CODES.ServerError)
-          .send({ message: "Error updating user", error });
+        res.status(STATUS_CODES.ServerError).send({ message: "Server Error" });
       }
     });
 };

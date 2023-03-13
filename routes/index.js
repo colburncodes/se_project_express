@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { ERROR_CODES } = require("../utils/errors");
+const { STATUS_CODES } = require("../utils/errors");
 const clothingController = require("./clothingItem");
 const userController = require("./user");
 const auth = require("../middlewares/auth");
@@ -13,7 +13,7 @@ router.use("/items", clothingController);
 router.use("/users", userController);
 
 router.use(auth, (req, res) => {
-  res.status(ERROR_CODES.NotFound).send({ message: "Router not found" });
+  res.status(STATUS_CODES.NotFound).send({ message: "Router not found" });
 });
 
 module.exports = router;

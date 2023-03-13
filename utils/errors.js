@@ -1,4 +1,4 @@
-const ERROR_CODES = {
+const STATUS_CODES = {
   Ok: 200,
   Created: 201,
   BadRequest: 400,
@@ -25,6 +25,6 @@ const ErrorHandler = (err, req, res, next) => {
 };
 
 module.exports = {
-  ERROR_CODES,
+  STATUS_CODES,
   ErrorHandler,
 };
