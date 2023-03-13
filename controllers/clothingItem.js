@@ -31,6 +31,7 @@ const deleteItem = (req, res, next) => {
   const { id } = req.params;
 
   ClothingItem.findById(id)
+    .orFail()
     .then((item) => {
       if (item.owner.equals(req.user._id)) {
         return item.deleteOne(() => res.send({ clothingItem: item }));

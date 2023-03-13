@@ -68,7 +68,7 @@ const createUser = async (req, res, next) => {
 };
 
 const updateUser = (req, res) => {
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   const { name, avatar, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -86,9 +86,7 @@ const updateUser = (req, res) => {
       if (error.name === "ValidationError") {
         res.status(ERROR_CODES.BadRequest).send({ message: "Invalid Data" });
       } else {
-        res
-          .status(ERROR_CODES.ServerError)
-          .send({ message: "Error updating user", error });
+        res.status(ERROR_CODES.ServerError).send({ message: "Server Error" });
       }
     });
 };
