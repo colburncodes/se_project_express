@@ -34,6 +34,8 @@ const getCurrentUser = async (req, res, next) => {
         res
           .status(STATUS_CODES.NotFound)
           .send({ message: "User with Id not found!" });
+      } else if (error.name === "DocumentNotFoundError") {
+        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       } else {
         next(error);
       }
