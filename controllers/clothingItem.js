@@ -3,7 +3,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
-    .then((items) => res.status(STATUS_CODES.Ok).send({ data: items }))
+    .then((items) => res.status(STATUS_CODES.Ok).send(items))
     .catch((error) => {
       next(error);
     });

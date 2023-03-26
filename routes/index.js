@@ -10,7 +10,7 @@ router.post("/signin", login);
 router.post("/signup", createUser);
 
 router.use("/items", clothingController);
-router.use("/users", userController);
+router.use("/users", auth, userController);
 
 router.use(auth, (req, res) => {
   res.status(STATUS_CODES.NotFound).send({ message: "Router not found" });

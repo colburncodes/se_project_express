@@ -13,7 +13,7 @@ const login = (req, res, next) => {
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         });
-        res.send({ token });
+        res.send({ email, token });
       }
     })
     .catch((err) => {
@@ -21,13 +21,18 @@ const login = (req, res, next) => {
     });
 };
 
-const getCurrentUser = async (req, res, next) => {
+const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       }
-      res.status(STATUS_CODES.Ok).send(user);
+      return res.status(STATUS_CODES.Ok).send({
+        user: {
+          _id: user._id,
+          name: user.name,
+        },
+      });
     })
     .catch((error) => {
       if (error.name === "CastError") {
@@ -95,7 +100,7 @@ const updateUser = (req, res) => {
 
 module.exports = {
   login,
-  getCurrentUser,
+  getUser,
   createUser,
   updateUser,
 };
