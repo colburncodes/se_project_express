@@ -28,10 +28,8 @@ const getUser = (req, res, next) => {
         res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       }
       return res.status(STATUS_CODES.Ok).send({
-        user: {
-          _id: user._id,
-          name: user.name,
-        },
+        _id: user._id,
+        name: user.name,
       });
     })
     .catch((error) => {
