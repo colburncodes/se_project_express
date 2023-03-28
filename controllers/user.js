@@ -27,10 +27,9 @@ const getUser = (req, res, next) => {
       if (!user) {
         res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
       }
-      return res.status(STATUS_CODES.Ok).send({
-        _id: user._id,
-        name: user.name,
-      });
+       res.send({
+         data: user,
+       });
     })
     .catch((error) => {
       if (error.name === "CastError") {
