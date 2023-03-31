@@ -52,4 +52,4 @@ Start the server
 ```bash
   npm run dev to launch the server with the hot reload feature
 ```
-
+Frontend application using React [Repo Here](https://github.com/colburncodes/se_project_react)
