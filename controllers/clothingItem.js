@@ -1,5 +1,10 @@
 const { STATUS_CODES } = require("../utils/errors");
 const ClothingItem = require("../models/clothingItem");
+const {
+  NotFoundError,
+  BadRequestError,
+  ForBiddenError,
+} = require("../utils/errors");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -20,7 +25,7 @@ const createItem = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid Data" });
+        next(new BadRequestError("Invalid data"));
       } else {
         next(err);
       }
@@ -36,15 +41,13 @@ const deleteItem = (req, res, next) => {
       if (item.owner.equals(req.user._id)) {
         return item.deleteOne(() => res.send({ clothingItem: item }));
       }
-      return res.status(STATUS_CODES.Forbidden).send({
-        message: "Forbidden",
-      });
+      return next(new ForBiddenError("Forbidden"));
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid Id" });
+        next(new BadRequestError("Invalid ID"));
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(STATUS_CODES.NotFound).send({ message: "Item not found" });
+        next(new NotFoundError("Item Not Found"));
       } else {
         res
           .status(STATUS_CODES.ServerError)
@@ -63,16 +66,14 @@ const likeItem = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(STATUS_CODES.NotFound).send({ message: "Card not found" });
+        throw new NotFoundError("Card not found");
       } else {
         res.send(card);
       }
     })
     .catch((error) => {
       if (error.name === "CastError") {
-        res
-          .status(STATUS_CODES.BadRequest)
-          .send({ message: "No card with Id" });
+        next(new BadRequestError("Invalid ID"));
       } else {
         res
           .status(STATUS_CODES.ServerError)
@@ -91,16 +92,14 @@ const dislikeItem = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(STATUS_CODES.NotFound).send({ message: "Card not found" });
+        throw new NotFoundError("Card not found");
       } else {
         res.send(card);
       }
     })
     .catch((error) => {
       if (error.name === "CastError") {
-        res
-          .status(STATUS_CODES.BadRequest)
-          .send({ message: "No card with Id" });
+        next(new BadRequestError("Invalid data"));
       } else {
         res
           .status(STATUS_CODES.ServerError)
