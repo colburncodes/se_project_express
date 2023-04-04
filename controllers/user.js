@@ -2,6 +2,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const { STATUS_CODES } = require("../utils/errors");
+const {
+  ConflictError,
+  NotFoundError,
+  Unauthorized,
+  BadRequestError,
+} = require("../utils/errors");
+
 const User = require("../models/user");
 
 const login = (req, res, next) => {
@@ -16,8 +23,8 @@ const login = (req, res, next) => {
         res.send({ email, token });
       }
     })
-    .catch((err) => {
-      res.status(STATUS_CODES.Unauthorized).send({ message: err.message });
+    .catch(() => {
+      next(new Unauthorized("Incorrect email or password"));
     });
 };
 
@@ -25,23 +32,13 @@ const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
+        throw NotFoundError("No user with matching ID found");
       }
-       res.send({
-         data: user,
-       });
+      res.send({
+        data: user,
+      });
     })
-    .catch((error) => {
-      if (error.name === "CastError") {
-        res
-          .status(STATUS_CODES.NotFound)
-          .send({ message: "User with Id not found!" });
-      } else if (error.name === "DocumentNotFoundError") {
-        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
-      } else {
-        next(error);
-      }
-    });
+    .catch(next);
 };
 
 const createUser = async (req, res, next) => {
@@ -61,17 +58,15 @@ const createUser = async (req, res, next) => {
     )
     .catch((error) => {
       if (error.name === "ValidationError") {
-        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid data" });
+        next(new BadRequestError("Invalid data"));
       } else if (error.code === STATUS_CODES.DuplicateError) {
-        res
-          .status(STATUS_CODES.Conflict)
-          .send({ message: "User already exists! " });
+        next(new ConflictError("User already exist!"));
       }
       next(error);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar, about } = req.body;
 
@@ -82,13 +77,13 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(STATUS_CODES.NotFound).send({ message: "User not found" });
+        throw NotFoundError("No user with matching ID found");
       }
       res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === "ValidationError") {
-        res.status(STATUS_CODES.BadRequest).send({ message: "Invalid Data" });
+        next(new BadRequestError("Invalid data"));
       } else {
         res.status(STATUS_CODES.ServerError).send({ message: "Server Error" });
       }
