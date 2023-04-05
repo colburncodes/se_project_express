@@ -4,6 +4,8 @@ const cors = require("cors");
 
 const mongoose = require("mongoose");
 
+const { errors } = require("celebrate");
+
 const app = express();
 
 const { PORT = 3001 } = process.env;
@@ -19,6 +21,9 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/", routes);
+
+// celebrate error handler
+app.use(errors());
 
 // Error Handling
 app.use(ErrorHandler);
