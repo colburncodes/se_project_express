@@ -10,41 +10,66 @@ const validateURL = (value, helpers) => {
   return helpers.error("string.uri");
 };
 
-const createClothingValidation = celebrate({
-  body: Joi.object({
-    name: Joi.string().required().min(2).max(30),
-    imageUrl: Joi.string().uri().required(),
+// validator for clothing item body
+const validateCardBody = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+      "string.empty": 'The "name" field must be filled in',
+    }),
+
+    imageUrl: Joi.string().required().custom(validateURL).messages({
+      "string.empty": 'The "imageUrl" field must be filled in',
+      "string.uri": 'the "imageUrl" field must be a valid url',
+    }),
   }),
 });
-
-const createUserValidation = celebrate({
-  body: Joi.object({
-    name: Joi.string().required().min(2).max(30),
+// validator for when user is created.
+const validateUserBody = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).messages({
+      "string.min": 'The minimun length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+      "string.empty": 'The "name" field cannot be empty',
+    }),
     avatar: Joi.string().uri().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
-    email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .required(),
-    password: Joi.string().required(),
+    email: Joi.string().required().email().messages({
+      "string.empty": 'The "email" field cannot be empty',
+      "string.email": 'The "email" field must be a valid email',
+    }),
+    password: Joi.string().required().messages({
+      "string.empty": 'The "password" field cannot be empty',
+    }),
   }),
 });
-
-const createAuthValidation = celebrate({
-  body: Joi.object({
-    email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-      .required(),
-    password: Joi.string()
-      .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
-      .required()
-      .min(8),
+// authenticate when user logs in
+const validateUserLogin = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email().messages({
+      "string.empty": 'The "email" field cannot be empty',
+      "string.email": 'The "email" field must be a valid email',
+    }),
+    password: Joi.string().required().messages({
+      "string.empty": 'The "password" field cannot be empty',
+    }),
+  }),
+});
+// validate user and clothing IDs when accessed
+const validateIds = celebrate({
+  body: Joi.object().keys({
+    params: Joi.object().keys({
+      id: Joi.string().length(24).hex().required(),
+    }),
   }),
 });
 
 module.exports = {
-  createClothingValidation,
-  createUserValidation,
-  createAuthValidation,
+  validateIds,
+  validateCardBody,
+  validateUserBody,
+  validateUserLogin,
 };
