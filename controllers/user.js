@@ -80,7 +80,7 @@ const updateUser = (req, res, next) => {
       if (!user) {
         throw NotFoundError("No user with matching ID found");
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((error) => {
       if (error.name === "ValidationError") {
