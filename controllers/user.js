@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-const { JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET } = process.env;
 const { STATUS_CODES } = require("../utils/errors");
 
 const Unauthorized = require("../utils/errors/unauthorized");
@@ -18,9 +19,13 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       if (user) {
-        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-          expiresIn: "7d",
-        });
+        const token = jwt.sign(
+          { _id: user._id },
+          NODE_ENV === "production" ? JWT_SECRET : "super-duper-secret-key",
+          {
+            expiresIn: "7d",
+          }
+        );
         res.send({ email, token });
       }
     })
