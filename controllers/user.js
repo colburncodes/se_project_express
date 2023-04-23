@@ -3,12 +3,12 @@ const jwt = require("jsonwebtoken");
 
 const { JWT_SECRET } = process.env;
 const { STATUS_CODES } = require("../utils/errors");
-const {
-  ConflictError,
-  NotFoundError,
-  Unauthorized,
-  BadRequestError,
-} = require("../utils/errors");
+
+const Unauthorized = require("../utils/errors");
+const ConflictError = require("../utils/errors");
+const NotFoundError = require("../utils/errors");
+const BadRequestError = require("../utils/errors");
+
 
 const User = require("../models/user");
 
