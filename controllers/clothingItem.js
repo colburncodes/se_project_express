@@ -1,10 +1,10 @@
 const { STATUS_CODES } = require("../utils/errors");
 const ClothingItem = require("../models/clothingItem");
-const {
-  NotFoundError,
-  BadRequestError,
-  ForBiddenError,
-} = require("../utils/errors");
+
+const ForBiddenError = require("../utils/errors/forbidden");
+const ServerError = require("../utils/errors/server-error");
+const NotFoundError = require("../utils/errors/not-found");
+const BadRequestError = require("../utils/errors/bad-request");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
@@ -27,7 +27,7 @@ const createItem = (req, res, next) => {
       if (err.name === "ValidationError") {
         next(new BadRequestError("Invalid data"));
       } else {
-        next(err);
+        next(new ServerError(err.message));
       }
     });
 };
@@ -49,9 +49,7 @@ const deleteItem = (req, res, next) => {
       } else if (err.name === "DocumentNotFoundError") {
         next(new NotFoundError("Item Not Found"));
       } else {
-        res
-          .status(STATUS_CODES.ServerError)
-          .send({ message: "An error has occurred on the server" });
+        next(new ServerError(err.message));
       }
     });
 };
@@ -75,9 +73,7 @@ const likeItem = (req, res, next) => {
       if (error.name === "CastError") {
         next(new BadRequestError("Invalid ID"));
       } else {
-        res
-          .status(STATUS_CODES.ServerError)
-          .send({ message: "An error has occurred on the server" });
+        next(new ServerError(error.message));
       }
     });
 };
@@ -101,9 +97,7 @@ const dislikeItem = (req, res, next) => {
       if (error.name === "CastError") {
         next(new BadRequestError("Invalid data"));
       } else {
-        res
-          .status(STATUS_CODES.ServerError)
-          .send({ message: "An error has occurred on the server" });
+        next(new ServerError(error.message));
       }
     });
 };

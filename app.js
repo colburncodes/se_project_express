@@ -1,25 +1,46 @@
 require("dotenv").config();
 const express = require("express");
+const helmet = require("helmet");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const rateLimit = require("express-rate-limit");
 const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const { customConsoleLog } = require("./utils/customConsoleLog");
 
 const app = express();
 
-const { PORT = 3001} = process.env;
+const { PORT = 3001 } = process.env;
 
 const { ErrorHandler } = require("./utils/errors");
 
 // DB Connection
-mongoose.connect("mongodb://localhost:27017/wtwr_db");
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    customConsoleLog("WTWR Database Successfully Connected", "info");
+  })
+  .catch(() => {
+    customConsoleLog("Error Connecting to Database", "error");
+  });
 
 // Routes
 const routes = require("./routes/index");
 
+app.use(helmet());
 app.use(express.json());
 app.use(cors());
 app.options("*", cors());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+app.use(limiter);
 
 app.get("/crash-test", () => {
   setTimeout(() => {
@@ -35,9 +56,12 @@ app.use(errors());
 app.use(ErrorHandler);
 
 app.listen(PORT, () => {
-  console.info(`
-    🚀  Server is running!
-    🔉  Listening on port 3001
-    📭  Query at http://localhost:3001
-  `);
+  customConsoleLog(
+    `
+  🚀  Server is running!
+  🔉  Listening on port 3001
+  📭  Query at http://localhost:3001
+  `,
+    "info"
+  );
 });
