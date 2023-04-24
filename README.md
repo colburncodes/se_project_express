@@ -52,8 +52,6 @@ Update a user
 
 Get clothing items
 
-Get user details
-
 `GET` /items
 
 Create clothing item
