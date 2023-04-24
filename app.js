@@ -17,7 +17,7 @@ const { ErrorHandler } = require("./utils/errors");
 // DB Connection
 mongoose.set("strictQuery", false);
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect("mongodb://localhost:27017/wtwr_db")
   .then(() => {
     customConsoleLog("WTWR Database Successfully Connected", "info");
   })
