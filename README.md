@@ -22,6 +22,55 @@ Creating a server for the front-end WTWR application.
 
 **Server:** Node, Express, Mongoose, JWT
 
+## WTWR API Explorer
+
+<details><summary>Authentication</summary>
+
+`POST` /signup 
+
+Create a new user
+
+`POST` /signin
+
+Log in user
+</details>
+
+<details><summary>User</summary>
+
+`GET` /users/me
+
+Get user details
+
+`PATCH` /users/me
+
+Update a user
+</details>
+
+<details><summary>Clothing Items</summary>
+
+`GET` /items
+
+Get clothing items
+
+Get user details
+
+`GET` /items
+
+Create clothing item
+
+`DELETE` /items/:id
+
+Delete clothing item
+
+`PUT` /items/:id/likes
+
+Like clothing item
+
+`DELETE` /items/:id/likes
+
+Dislike clothing item
+</details>
+
 
 ## Run Locally
 
@@ -43,6 +92,13 @@ Install dependencies
   npm install
 ```
 
+Create a `.env` file in root directory
+
+```
+JWT_TOKEN="yoursecrethere"
+MONGODB_URI="mongodb://localhost:27017/wtwr_db"
+```
+
 Start the server
 
 ```bash
@@ -52,4 +108,10 @@ Start the server
 ```bash
   npm run dev to launch the server with the hot reload feature
 ```
-Frontend application using React [Repo Here](https://github.com/colburncodes/se_project_react)
+
+## Accessing Deployed Application
+`Frontend Application` [What To Wear](https://wtwr.mooo.com/)
+
+`Backend API` [WTWR API](https://api.wtwr.mooo.com/items)
+
+Frontend application using React [Frontend Repo Here](https://github.com/colburncodes/se_project_react)
