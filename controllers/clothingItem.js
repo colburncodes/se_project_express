@@ -8,10 +8,8 @@ const BadRequestError = require("../utils/errors/bad-request");
 
 const getItems = (req, res, next) => {
   ClothingItem.find({})
-    .then((items) => res.status(STATUS_CODES.Ok).send(items))
-    .catch((error) => {
-      next(error);
-    });
+    .then((items) => res.send(items))
+    .catch(next);
 };
 
 const createItem = (req, res, next) => {

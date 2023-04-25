@@ -1,15 +1,13 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = require("../utils/config");
 const { STATUS_CODES } = require("../utils/errors");
 
 const Unauthorized = require("../utils/errors/unauthorized");
 const ConflictError = require("../utils/errors/conflict");
 const NotFoundError = require("../utils/errors/not-found");
 const BadRequestError = require("../utils/errors/bad-request");
-
 
 const User = require("../models/user");
 
@@ -19,13 +17,9 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       if (user) {
-        const token = jwt.sign(
-          { _id: user._id },
-          NODE_ENV === "production" ? JWT_SECRET : "super-duper-secret-key",
-          {
-            expiresIn: "7d",
-          }
-        );
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
         res.send({ email, token });
       }
     })
@@ -91,7 +85,7 @@ const updateUser = (req, res, next) => {
       if (error.name === "ValidationError") {
         next(new BadRequestError("Invalid data"));
       } else {
-        res.status(STATUS_CODES.ServerError).send({ message: "Server Error" });
+        next(error);
       }
     });
 };
