@@ -16,11 +16,11 @@ const ErrorHandler = (err, req, res, next) => {
   console.error(err.stack); // log the error stack trace to the console
 
   // Set a default error status code if none provided
-  const statusCode = res.statusCode || 500;
+  const { statusCode = 500, message } = err;
 
-  // Return a JSON response with the error message and status code
-  res.status(statusCode).json({
-    message: "An error has occured on the server",
+  res.status(statusCode).send({
+    // check the status and display a message based on it
+    message: statusCode === 500 ? "An error occurred on the server" : message,
   });
 };
 
