@@ -37,7 +37,7 @@ const deleteItem = (req, res, next) => {
     .orFail()
     .then((item) => {
       if (item.owner.equals(req.user._id)) {
-        return item.deleteOne(() => res.send({ clothingItem: item }));
+        return item.deleteOne(() => res.send(item));
       }
       return next(new ForBiddenError("Forbidden"));
     })
