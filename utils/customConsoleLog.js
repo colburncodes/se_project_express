@@ -8,7 +8,7 @@ const customConsoleLog = (message, level = "info") => {
 
   const formattedMessage = `[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`;
 
-  console.log(levels[level] + formattedMessage + "\x1b[0m"); // reset color
+  console.log(`${levels[level] + formattedMessage}\x1b[0m`); // reset color
 };
 
 module.exports = { customConsoleLog };
