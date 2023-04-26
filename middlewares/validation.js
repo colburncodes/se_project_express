@@ -73,7 +73,7 @@ const validateUserLogin = celebrate({
 });
 // validate user and clothing IDs when accessed
 const validateIds = celebrate({
-  body: Joi.object().keys({
+  params: Joi.object().keys({
     id: Joi.string().length(24).hex().required(),
   }),
 });
