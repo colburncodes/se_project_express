@@ -24,51 +24,23 @@ Creating a server for the front-end WTWR application.
 
 ## WTWR API Explorer
 
-<details><summary>Authentication</summary>
+| Endpoint | Methods | Description |
+| -------- | ------- | ----------- |
+| `/signup` | `POST` |   Create a new user|
+| `/signin` | `POST` |   Sign into your account|
 
-`POST` /signup 
+| Endpoint | Methods | Description |
+| -------- | ------- | ----------- |
+| `/users/me` | `GET` |   Get users details|
+| `/users/me` | `PATCH` |   Update user account|
 
-Create a new user
-
-`POST` /signin
-
-Log in user
-</details>
-
-<details><summary>User</summary>
-
-`GET` /users/me
-
-Get user details
-
-`PATCH` /users/me
-
-Update a user
-</details>
-
-<details><summary>Clothing Items</summary>
-
-`GET` /items
-
-Get clothing items
-
-`GET` /items
-
-Create clothing item
-
-`DELETE` /items/:id
-
-Delete clothing item
-
-`PUT` /items/:id/likes
-
-Like clothing item
-
-`DELETE` /items/:id/likes
-
-Dislike clothing item
-</details>
-
+| Endpoint | Methods | Description |
+| -------- | ------- | ----------- |
+| `/items` | `GET` |   Get list of clothing items|
+| `/items` | `POST` |   Create clothing item|
+| `/items/:id` | `POST` |   Delete clothing item|
+| `/items/:id/likes` | `PUT` |   Like clothing item|
+| `/items/:id/likes` | `DELETE` |   Dislike clothing item|
 
 ## Run Locally
 
